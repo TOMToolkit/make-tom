@@ -46,7 +46,7 @@ Next steps:
 
 ### Tips and Trouble-shooting
 
-Here's a way to generate a uniquely named TOM, which can be useful when you want to evaluate or experiment with something with the intention of deleting the directory when you're done:
+Here's a way to generate a uniquely named TOM, which can be useful when you repeatedly want to evaluate or experiment with something with the intention of deleting the directory when you're done:
 ```bash
 ./make-tom.sh name_of_your_tom_`date +'%Y%h%d_%0k%M'`
 ```
