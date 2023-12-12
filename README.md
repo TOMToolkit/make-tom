@@ -11,9 +11,9 @@ The basic workflow executed by the `make-tom.sh` script is:
 1. Create a Python virtual environment and activate it.
 2. Install from PyPI `tomtoolkit` and its dependencies (including Django) into the virtual environment.
 3. Use the `django-admin startproject` command to create a basic Django project.
-4. Add the one-time utility, `tom_setup` to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
+4. Add the one-time utility, `tom_setup`, to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
 
-This will create the TOM in a virtual environment. You'll be reminded of the next steps to take to see your TOM running:
+This will create the TOM project in a virtual environment, doing the necessary database migrations along the way. You'll be reminded of the next steps to start your TOM running and see it in a browser:
 1. cd to the newly created directory.
 2. activate the virtual environment with `source ./env/bin/activate`.
 3. Start the Django development server with `./manage.py runserver`.
