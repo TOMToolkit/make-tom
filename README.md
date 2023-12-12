@@ -15,11 +15,34 @@ The basic workflow executed by the `make-tom.sh` script is:
 3. Use the `django-admin startproject` command to create a basic Django project.
 4. Add the one-time utility, `tom_setup`, to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
 
-The necessary database migrations are done along the way and you'll be reminded of the next steps to take to start your TOM running and see it in a browser:
-1. cd to the newly created directory.
-2. activate the virtual environment with `source ./env/bin/activate`.
-3. Start the Django development server with `./manage.py runserver`.
-4. Point a browser to the URL given by the `runserver` management command.
+When the `make-tom.sh` script is finished, you'll see (for example) the following output:
+
+```bash
+Here is the directory we created:
+/path/to/your/cwd//my_tom
+.
+├── data
+├── db.sqlite3
+├── manage.py
+├── my_tom
+│   ├── asgi.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── static
+├── templates
+└── tmp
+
+6 directories, 7 files
+
+Next steps:
+  1. cd to the new directory. 
+  2. activate the virtual environment with 'source ./env/bin/activate'. 
+  3. Start the Django development server with './manage.py runserver'. 
+  4. Point a browser to the URL given by the 'runserver' management command.
+```
 
 ### Tips and Trouble-shooting
 
