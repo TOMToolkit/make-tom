@@ -1,6 +1,6 @@
 # make-tom
 
-`make-tom-sh` is a shell script for creating a TOM Toolkit-based TOM in a virtual environment. It's useful both as a way to spin up and "out-of-the-box" TOM for evaluation and as a reference for how to create a TOM for further customization and development.
+`make-tom-sh` is a shell script for creating a TOM Toolkit-based TOM in a virtual environment. It's useful both as a way to spin up an "out-of-the-box" TOM for evaluation and as a reference for how to create a TOM for further customization and development.
 
 ## Usage
 ```bash
