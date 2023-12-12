@@ -3,10 +3,11 @@
 `make-tom-sh` is a shell script for creating a TOM Toolkit-based TOM in a virtual environment. It's useful both as a way to spin up an "out-of-the-box" TOM for evaluation and as a reference for how to create a TOM for further customization and development.
 
 ## Usage
+The `make-tom.sh` script is all you need. Download it, make it executable (`chmod +x make-tom.sh`), and run it:
 ```bash
   ./make-tom.sh my_tom
 ```
-This will create the directory `my_tom` in the current working directory, with a virtural environment (`my_tom/env`) and TOM Toolkit (Django) project.
+This will create the directory `my_tom` in your current working directory with a virtural environment (`my_tom/env`) and TOM Toolkit (Django) project.
 
 The basic workflow executed by the `make-tom.sh` script is:
 1. Create a Python virtual environment and activate it.
@@ -14,7 +15,7 @@ The basic workflow executed by the `make-tom.sh` script is:
 3. Use the `django-admin startproject` command to create a basic Django project.
 4. Add the one-time utility, `tom_setup`, to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
 
-This will create the TOM project in a virtual environment, doing the necessary database migrations along the way. You'll be reminded of the next steps to start your TOM running and see it in a browser:
+The necessary database migrations are done along the way and you'll be reminded of the next steps to take to start your TOM running and see it in a browser:
 1. cd to the newly created directory.
 2. activate the virtual environment with `source ./env/bin/activate`.
 3. Start the Django development server with `./manage.py runserver`.
