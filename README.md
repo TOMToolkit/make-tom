@@ -10,7 +10,7 @@ This will create the directory `my_tom` in the current working directory, with a
 
 The basic workflow executed by the `make-tom.sh` script is:
 1. Create a Python virtual environment and activate it.
-2. Install from PyPI `tomtoolkit` and its dependencies (including Django) into the virtual environment.
+2. From PyPI, install `tomtoolkit` and its dependencies (including Django) into the virtual environment.
 3. Use the `django-admin startproject` command to create a basic Django project.
 4. Add the one-time utility, `tom_setup`, to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
 
