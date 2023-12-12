@@ -4,8 +4,9 @@
 
 ## Usage
 ```bash
-  ./make-tom.sh name_of_your_tom
+  ./make-tom.sh my_tom
 ```
+This will create the directory `my_tom` in the current working directory, with a virtural environment (`my_tom/evn`) and TOM Toolkit (Django) project.
 
 The basic workflow executed by the `make-tom.sh` script is:
 1. Create a Python virtual environment and activate it.
