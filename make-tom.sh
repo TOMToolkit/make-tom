@@ -14,9 +14,6 @@ else
     TOM_DIR_NAME="$1"
 fi
 
-# make the directory name unique (different from the any previous one)
-TOM_DIR_NAME=$TOM_DIR_NAME\_`date +'%Y%h%d_%0k%M'`
-
 # the TOM_NAME must be a valid Python identifier.
 # So, hyphens are not allowed; change any hyphens to underscores
 TOM_NAME=`echo $TOM_DIR_NAME | sed -e "s/-/_/g"`
