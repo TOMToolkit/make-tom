@@ -50,3 +50,4 @@ Here's a way to generate a uniquely named TOM, which can be useful when you repe
 ```bash
 ./make-tom.sh name_of_your_tom_`date +'%Y%h%d_%0k%M'`
 ```
+This will create a uniquely named TOM Toolkit directory called, for example, `name_of_your_tom_2023Dec13_1751`.
