@@ -20,7 +20,7 @@ TOM_NAME=`echo $TOM_DIR_NAME | sed -e "s/-/_/g"`
 
 check_python() {
     local python_path="$1"
-    PYTHON_PATH=`which $python_path 2>/dev/null`
+    PYTHON_PATH=`command -v $python_path 2>/dev/null`
     if [ "$?" != 0 ]; then
         echo "Python not found on your PATH"
         echo -n "Please exit or type the pathname of a python executable: (exit/</path/to/python>)? [exit] "
@@ -50,7 +50,7 @@ check_python() {
 }
 
 echo "${bold}Checking for your installed Python...${normal}"
-check_python `which python`
+check_python `command -v python 2>/dev/null`
 
 #
 # Tell the user what's about to happen and make sure they want to continue
@@ -148,7 +148,12 @@ echo "${bold}Configuring the sqlite3 database for TOMToolkit...${normal}"
 echo
 echo "${bold}Here is the directory we created:${normal}"
 pwd
-tree -L 2 -I env
+if command -v tree >/dev/null 2>&1; then
+    tree -L 2 -I env\|__pycache__
+else
+    ls `pwd`
+fi
+
 
 echo
 echo "${bold}Next steps:${normal}"
