@@ -92,11 +92,17 @@ source env/bin/activate
 pip install --upgrade pip        # so we don't get reminded again and again
 
 #
-# 4. pip install tomtoolkit and dependencies (including Django) to the Virtual Environment
+# 4. Install and initialize Poetry and the tomtoolkit
 #
 echo
-echo "${bold}Installing tomtoolkit and dependencies into the virtual environment...${normal}"
-pip install tomtoolkit
+echo "${bold}Installing pipx and Poetry...${normal}"
+pip install pipx
+pipx install poetry
+
+echo
+echo "${bold}Initializing Poetry and installing tomtoolkit and its dependencies into the env...${normal}"
+poetry init --no-interaction --python=">=3.8.1,<3.12"
+poetry add tomtoolkit
 
 #
 # 5. Create the Django project in the directory we've created for this purpose.
