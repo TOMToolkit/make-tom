@@ -92,11 +92,15 @@ source env/bin/activate
 pip install --upgrade pip        # so we don't get reminded again and again
 
 #
-# 4. pip install tomtoolkit and dependencies (including Django) to the Virtual Environment
+# 4. Create requirements file and install tomtoolkit/dependencies (including Django) to the Virtual Environment
 #
 echo
+echo "${bold}Creating requirements.txt...${normal}"
+echo tomtoolkit > requirements.txt
+
+echo
 echo "${bold}Installing tomtoolkit and dependencies into the virtual environment...${normal}"
-pip install tomtoolkit
+pip install -r requirements.txt
 
 #
 # 5. Create the Django project in the directory we've created for this purpose.
