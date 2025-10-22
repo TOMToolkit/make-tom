@@ -1,5 +1,6 @@
 #! /bin/sh
 
+set -eo pipefail
 bold=$(tput bold)
 normal=$(tput sgr0)
 
