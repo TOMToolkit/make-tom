@@ -31,6 +31,31 @@ ask_yes_or_no() {
     esac
 }
 
+# Validate that a project name is a valid Python identifier.
+# Django project names become Python module names, so they must be valid
+# Python identifiers: start with a letter or underscore, followed by
+# letters, digits, or underscores. Python keywords are also rejected.
+validate_project_name() {
+    local name="$1"
+    if [ -z "$name" ]; then
+        echo "${bold}Error:${normal} Project name cannot be empty." >&2
+        exit 1
+    fi
+    if ! echo "$name" | grep -qE '^[a-zA-Z_][a-zA-Z0-9_]*$'; then
+        echo "${bold}Error:${normal} \"$name\" is not a valid Python identifier." \
+            "Use only letters, digits, and underscores. Also, cannot start with a digit)." >&2
+        exit 1
+    fi
+    case "$name" in
+        False|None|True|and|as|assert|async|await|break|class|continue|\
+        def|del|elif|else|except|finally|for|from|global|if|import|in|\
+        is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)
+            echo "${bold}Error:${normal} \"$name\" is a Python keyword and cannot be used as a project name." >&2
+            exit 1
+            ;;
+    esac
+}
+
 
 # ===========================================================================
 # Main workflow
@@ -43,13 +68,22 @@ ask_yes_or_no() {
 if [ -z "$1" ]; then
     printf "Please provide a name for your TOM: "
     read -r TOM_DIR_NAME
+    [ -z "$TOM_DIR_NAME" ] && { echo "${bold}Error:${normal} No project name provided." >&2; exit 1; }
 else
     TOM_DIR_NAME="$1"
 fi
 
-# the TOM_NAME must be a valid Python identifier.
-# So, hyphens are not allowed; change any hyphens to underscores
-TOM_NAME=$(echo "$TOM_DIR_NAME" | sed -e "s/-/_/g")
+# The project name must be a valid Python identifier (it becomes a Django
+# module name). Validate the name as given — don't silently convert characters,
+# because the directory name and Django project name must match for tom_setup
+# to locate settings.py correctly.
+TOM_NAME="$TOM_DIR_NAME"
+validate_project_name "$TOM_NAME"
+
+if [ -d "$TOM_DIR_NAME" ]; then
+    echo "${bold}Error:${normal} Directory \"$TOM_DIR_NAME\" already exists." >&2
+    exit 1
+fi
 
 check_python() {
     local python_path="$1"
