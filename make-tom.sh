@@ -153,7 +153,7 @@ find_python_interpreter() {
     while true; do
         if [ -n "$candidate_path" ] && verify_python_interpreter "$candidate_path"; then
             # Found a valid interpreter — ask the user to confirm or override
-            if ! ask_yes_or_no "Use $PYTHON_VERSION at $PYTHON_PATH?" "y"; then
+            if ! ask_yes_or_no "Use $PYTHON_VERSION at $PYTHON_PATH? (say 'n' to provide a different path)" "y"; then
                 printf "Enter path to a Python interpreter: "
                 read -r candidate_path
                 [ -z "$candidate_path" ] && print_error_and_exit "No path provided."
