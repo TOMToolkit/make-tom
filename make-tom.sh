@@ -10,6 +10,12 @@ normal=$(tput sgr0 2>/dev/null || true)
 # Utility functions
 # ---------------------------------------------------------------------------
 
+# Print an error message to stderr and exit.
+print_error_and_exit() {
+    echo "${bold}Error:${normal} $*" >&2
+    exit 1
+}
+
 # Ask a yes/no question. Returns 0 for yes, 1 for no.
 #   $1 = prompt text
 #   $2 = default ("y" or "n")
@@ -39,23 +45,33 @@ ask_yes_or_no() {
 validate_project_name() {
     local project_name="$1"
     if [ -z "$project_name" ]; then
-        echo "${bold}Error:${normal} Project name cannot be empty." >&2
-        exit 1
+        print_error_and_exit "Project name cannot be empty."
     fi
     if ! echo "$project_name" | grep -qE '^[a-zA-Z_][a-zA-Z0-9_]*$'; then
-        echo "${bold}Error:${normal} \"$project_name\" is not a valid Python identifier." \
-            "Use only letters, digits, and underscores. Also, cannot start with a digit)." >&2
-        exit 1
+        print_error_and_exit "\"$project_name\" is not a valid Python identifier." \
+            "Use only letters, digits, and underscores. Also, cannot start with a digit)."
     fi
     case "$project_name" in
         False|None|True|and|as|assert|async|await|break|class|continue|\
         def|del|elif|else|except|finally|for|from|global|if|import|in|\
         is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)
-            echo "${bold}Error:${normal} \"$project_name\" is a Python keyword and cannot be used as a project name." >&2
-            exit 1
+            print_error_and_exit "\"$project_name\" is a Python keyword and cannot be used as a project name."
             ;;
     esac
 }
+
+# Cleanup trap: remove a partially-created project directory on failure.
+CLEANUP_DIR=""
+SCRIPT_SUCCEEDED=""
+
+cleanup_on_failure() {
+    if [ -n "$CLEANUP_DIR" ] && [ -z "$SCRIPT_SUCCEEDED" ]; then
+        echo
+        echo "${bold}Something went wrong. Cleaning up ${CLEANUP_DIR}...${normal}"
+        rm -rf "$CLEANUP_DIR"
+    fi
+}
+trap cleanup_on_failure EXIT
 
 # Minimum and maximum Python versions supported by tomtoolkit.
 # Update these when tomtoolkit's compatibility requirements change.
@@ -140,7 +156,7 @@ find_python_interpreter() {
             if ! ask_yes_or_no "Use $PYTHON_VERSION at $PYTHON_PATH?" "y"; then
                 printf "Enter path to a Python interpreter: "
                 read -r candidate_path
-                [ -z "$candidate_path" ] && { echo "${bold}Error:${normal} No path provided." >&2; exit 1; }
+                [ -z "$candidate_path" ] && print_error_and_exit "No path provided."
                 continue
             fi
             return 0
@@ -171,7 +187,7 @@ find_python_interpreter() {
 if [ -z "$1" ]; then
     printf "Please provide a name for your TOM: "
     read -r TOM_DIR_NAME
-    [ -z "$TOM_DIR_NAME" ] && { echo "${bold}Error:${normal} No project name provided." >&2; exit 1; }
+    [ -z "$TOM_DIR_NAME" ] && print_error_and_exit "No project name provided."
 else
     TOM_DIR_NAME="$1"
 fi
@@ -184,8 +200,7 @@ TOM_NAME="$TOM_DIR_NAME"
 validate_project_name "$TOM_NAME"
 
 if [ -d "$TOM_DIR_NAME" ]; then
-    echo "${bold}Error:${normal} Directory \"$TOM_DIR_NAME\" already exists." >&2
-    exit 1
+    print_error_and_exit "Directory \"$TOM_DIR_NAME\" already exists."
 fi
 
 #
@@ -207,70 +222,93 @@ fi
 #
 # 3. Create the directory that the project will live in.
 #
-mkdir "$TOM_DIR_NAME"
+
+mkdir "$TOM_DIR_NAME" || print_error_and_exit "Could not create directory \"$TOM_DIR_NAME\"."
+CLEANUP_DIR="$(cd "$TOM_DIR_NAME" && pwd)"   # absolute path for the cleanup trap
 cd "$TOM_DIR_NAME"
 
 #
 # 4. Create a Python Virtual Environment in that directory (and activate it)
 #
+
 echo
 echo "${bold}Creating and activating the virtual environment...${normal}"
-"$PYTHON_PATH" -m venv .venv
+"$PYTHON_PATH" -m venv .venv || print_error_and_exit "Failed to create virtual environment."
+
+# shellcheck disable=SC1091
 source .venv/bin/activate
-pip install --upgrade pip        # so we don't get reminded again and again
+
+# Verify that activation worked — 'python' should now point to the venv
+VENV_PYTHON="$(cd .venv/bin && pwd)/python"
+if [ "$(command -v python)" != "$VENV_PYTHON" ]; then
+    print_error_and_exit "Virtual environment activation failed. 'python' does not point to .venv."
+fi
+
+pip install --upgrade pip || print_error_and_exit "Failed to upgrade pip."
 
 #
-# 5. Create requirements file and install tomtoolkit/dependencies (including Django) to the Virtual Environment
+# 5. Create requirements file and install tomtoolkit/dependencies (including Django)
+#    to the Virtual Environment
 #
+
 echo
 echo "${bold}Creating requirements.txt...${normal}"
-echo tomtoolkit > requirements.txt
+echo "tomtoolkit" > requirements.txt
 
 echo
 echo "${bold}Installing tomtoolkit and dependencies into the virtual environment...${normal}"
-pip install -r requirements.txt
+pip install -r requirements.txt || print_error_and_exit "Failed to install tomtoolkit. Check your network connection and try again."
 
 #
 # 6. Create the Django project in the directory we've created for this purpose.
 #
-#    NB: The second arg to startproject specifies the directory in which
+#    NB: The second arg to django-admin startproject specifies the directory in which
 #    the project is created. In this case, that's the directory that we are in, and
-#    in which we have placed our virtual environment (env directory).
+#    in which we have placed our virtual environment (.venv directory).
 #
+
 echo
 echo "${bold}Creating the base Django project...${normal}"
-django-admin startproject "$TOM_NAME" "../$TOM_DIR_NAME"
+django-admin startproject "$TOM_NAME" "../$TOM_DIR_NAME" || print_error_and_exit "django-admin startproject failed."
 
 #
 # 7. Test the sqlite3 database connection and initialize the basic Django tables
 #
+
 echo
 echo "${bold}Configuring the sqlite3 database for the base Django project...${normal}"
-./manage.py migrate
+./manage.py migrate || print_error_and_exit "Initial database migration failed."
 
 #
 # 8. Add 'tom_setup' to the INSTALLED_APPS list of the new Django project.
 #
-#    The TOM Toolkit comes with a Django management command (tom_setup) which installs the
-#    TOM Toolkit "apps" into your Django project. This transforms your blank Django project
-#    into a TOM Toolkit-base TOM.
+#    The TOMToolkit comes with a Django management command (tom_setup) which installs the
+#    TOMToolkit "apps" into your Django project. This transforms your blank Django project
+#    into a TOMToolkit-based TOM.
 #
 #    This happens by adding 'tom_setup' to your project's settings.py list of INSTALLED_APPS
 #    and running that (now available) management command.
 #
 #    NB: I've seen both double- and single-quotes in the settings.py module generated by
 #        django-admin startproject, so this sed command handles both.
-#    NB: the GNU and BSD (macOS) versions of sed differ in they way they handle the
-#        -i --in-place switch: BSD sed requires a suffix to be used. So, we avoid using
-#        that and simulate -i with a copy-to-tmp-and-remove-later method.
+#    NB: The GNU and BSD (macOS) versions of sed differ in the way they handle the
+#        -i (--in-place) switch: BSD sed requires a backup suffix argument. We avoid -i
+#        entirely and use a copy-to-backup-and-replace pattern instead.
+#    NB: The \n escape in sed replacement strings is not portable (BSD sed treats it
+#        literally). We use a shell variable containing a real newline, which both GNU
+#        and BSD sed handle correctly via the backslash-newline POSIX convention.
 #
+
 echo
 echo "${bold}Adding tom_setup to the settings.py INSTALLED_APPS list...${normal}"
+NEWLINE='
+'
 if command -v sed > /dev/null 2>&1; then
-    cp "$TOM_NAME/settings.py" "$TOM_NAME/settings.py.tmp" &&
-    sed -e "s/'django.contrib.staticfiles',/'django.contrib.staticfiles',\n    'tom_setup',/" \
-        -e 's/"django.contrib.staticfiles",/"django.contrib.staticfiles",\n    "tom_setup",/' <"$TOM_NAME/settings.py.tmp" >"$TOM_NAME/settings.py" &&
-    rm -r "$TOM_NAME/settings.py.tmp"
+    cp "$TOM_NAME/settings.py" "$TOM_NAME/settings.py.bak" &&
+    sed -e "s/'django.contrib.staticfiles',/'django.contrib.staticfiles',\\${NEWLINE}    'tom_setup',/" \
+        -e "s/\"django.contrib.staticfiles\",/\"django.contrib.staticfiles\",\\${NEWLINE}    \"tom_setup\",/" \
+        < "$TOM_NAME/settings.py.bak" > "$TOM_NAME/settings.py" &&
+    rm "$TOM_NAME/settings.py.bak"
 else
     echo "sed not found. Please manually add 'tom_setup' to INSTALLED_APPS in $TOM_NAME/settings.py."
     if ! ask_yes_or_no "Have you added it and are ready to continue?" "n"; then
@@ -281,28 +319,30 @@ fi
 
 echo
 echo "${bold}Running the one-time tom_setup management command...${normal}"
-./manage.py | grep -B 1 -A 2 tom_setup # see the newly available management command: tom_setup
-./manage.py tom_setup # run the one-time tom_setup management command
+./manage.py tom_setup || print_error_and_exit "tom_setup management command failed."
+
 echo
 echo "${bold}Configuring the sqlite3 database for TOMToolkit...${normal}"
-./manage.py migrate   # update the database with TOM-specific tables (Targets, Observations, etc).
+./manage.py migrate || print_error_and_exit "TOMToolkit database migration failed."
 
 #
-# Wrap it up
+# Done!
 #
+
+SCRIPT_SUCCEEDED=1   # Tell the cleanup trap we finished successfully
+
 echo
 echo "${bold}Here is the directory we created:${normal}"
 pwd
 if command -v tree >/dev/null 2>&1; then
-    tree -L 2 -I .venv\|__pycache__
+    tree -L 2 -I '.venv|__pycache__'
 else
-    ls "$(pwd)"
+    ls
 fi
-
 
 echo
 echo "${bold}Next steps:${normal}"
-echo "  1. cd to the new directory. "
-echo "  2. activate the virtual environment with 'source ./.venv/bin/activate'. "
-echo "  3. Start the Django development server with './manage.py runserver'. "
+echo "  1. cd to the new directory."
+echo "  2. activate the virtual environment with 'source ./.venv/bin/activate'."
+echo "  3. Start the Django development server with './manage.py runserver'."
 echo "  4. Point a browser to the URL given by the 'runserver' management command."
