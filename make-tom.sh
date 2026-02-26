@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Minimum and maximum Python versions supported by tomtoolkit.
+# Update these when tomtoolkit's compatibility requirements change.
+MIN_PYTHON_VERSION="3.9"
+MAX_PYTHON_VERSION="3.13"
+
 set -eo pipefail
 
 # Terminal formatting (empty strings if tput is unavailable, e.g. on dumb terminals)
@@ -72,11 +77,6 @@ cleanup_on_failure() {
     fi
 }
 trap cleanup_on_failure EXIT
-
-# Minimum and maximum Python versions supported by tomtoolkit.
-# Update these when tomtoolkit's compatibility requirements change.
-MIN_PYTHON_VERSION="3.9"
-MAX_PYTHON_VERSION="3.13"
 
 # Verify that a Python interpreter meets our requirements.
 # Sets PYTHON_PATH and PYTHON_VERSION on success (return 0).
