@@ -1,57 +1,59 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
 set -eo pipefail
-bold=$(tput bold)
-normal=$(tput sgr0)
+
+# Terminal formatting (empty strings if tput is unavailable, e.g. on dumb terminals)
+bold=$(tput bold 2>/dev/null || true)
+normal=$(tput sgr0 2>/dev/null || true)
 
 #
 # 1. Gather the name of the django project from the command line
 #
 
 if [ -z "$1" ]; then
-    echo -n "Please provide a name for your TOM: "
-    read TOM_DIR_NAME
+    printf "Please provide a name for your TOM: "
+    read -r TOM_DIR_NAME
 else
     TOM_DIR_NAME="$1"
 fi
 
 # the TOM_NAME must be a valid Python identifier.
 # So, hyphens are not allowed; change any hyphens to underscores
-TOM_NAME=`echo $TOM_DIR_NAME | sed -e "s/-/_/g"`
+TOM_NAME=$(echo "$TOM_DIR_NAME" | sed -e "s/-/_/g")
 
 check_python() {
     local python_path="$1"
-    PYTHON_PATH=`command -v $python_path 2>/dev/null`
+    PYTHON_PATH=$(command -v "$python_path" 2>/dev/null)
     if [ "$?" != 0 ]; then
         echo "Python not found on your PATH"
-        echo -n "Please exit or type the pathname of a python executable: (exit/</path/to/python>)? [exit] "
-        read python_answer
+        printf "Please exit or type the pathname of a python executable: (exit/</path/to/python>)? [exit] "
+        read -r python_answer
         python_answer="${python_answer:-exit}"
         if [ "$python_answer" = "exit" ]; then
 	    echo "Exiting."
     	    exit 0;
         else
             PYTHON_PATH="$python_answer"
-    	    check_python $python_answer
+    	    check_python "$python_answer"
         fi
     else
-        PYTHON_VERSION=`$PYTHON_PATH --version`
+        PYTHON_VERSION=$("$PYTHON_PATH" --version)
         echo "Found $PYTHON_VERSION at $PYTHON_PATH"
         echo "Do you want to use the $PYTHON_VERSION at $PYTHON_PATH? "
-        echo -n "Type 'yes' or the pathname of an alternative python executable: (yes/</path/to/python>)? [yes] "
-        read python_answer
+        printf "Type 'yes' or the pathname of an alternative python executable: (yes/</path/to/python>)? [yes] "
+        read -r python_answer
         python_answer="${python_answer:-yes}"
     fi
 
     if [ "$python_answer" != "yes" ]; then
 	echo
 	echo "Checking $python_answer ..."
-	check_python $python_answer
+	check_python "$python_answer"
     fi
 }
 
 echo "${bold}Checking for your installed Python...${normal}"
-check_python `command -v python 2>/dev/null`
+check_python "$(command -v python 2>/dev/null)"
 
 #
 # Tell the user what's about to happen and make sure they want to continue
@@ -60,8 +62,8 @@ echo
 echo "Using ${bold}$PYTHON_VERSION${normal} at $PYTHON_PATH to create "
 echo "create TOM: ${bold}$TOM_NAME${normal} in directory ${bold}$TOM_DIR_NAME${normal}"
 # Ask the user if they want to continue with the default "No"
-echo -n "Do you want to continue (y/n)? [n]: "
-read user_input
+printf "Do you want to continue (y/n)? [n]: "
+read -r user_input
 
 # Set the default value to "N" if the input is empty
 user_input="${user_input:-N}"
@@ -80,15 +82,15 @@ fi
 #
 # 2. Create the directory that the project will live in.
 #
-mkdir $TOM_DIR_NAME
-cd $TOM_DIR_NAME
+mkdir "$TOM_DIR_NAME"
+cd "$TOM_DIR_NAME"
 
 #
 # 3. Create a Python Virtual Environment in that directory (and activate it)
 #
 echo
 echo "${bold}Creating and activating the virtual environment...${normal}"
-$PYTHON_PATH -m venv .venv
+"$PYTHON_PATH" -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip        # so we don't get reminded again and again
 
@@ -112,7 +114,7 @@ pip install -r requirements.txt
 #
 echo
 echo "${bold}Creating the base Django project...${normal}"
-django-admin startproject $TOM_NAME ../$TOM_DIR_NAME
+django-admin startproject "$TOM_NAME" "../$TOM_DIR_NAME"
 
 #
 # 6. Test the sqlite3 database connection and initialize the basic Django tables
@@ -140,14 +142,14 @@ echo "${bold}Configuring the sqlite3 database for the base Django project...${no
 echo
 echo "${bold}Adding tom_setup to the settings.py INSTALLED_APPS list...${normal}"
 if command -v sed > /dev/null 2>&1; then
-    cp $TOM_NAME/settings.py $TOM_NAME/settings.py.tmp &&
+    cp "$TOM_NAME/settings.py" "$TOM_NAME/settings.py.tmp" &&
     sed -e "s/'django.contrib.staticfiles',/'django.contrib.staticfiles',\n    'tom_setup',/" \
-	-e 's/"django.contrib.staticfiles",/"django.contrib.staticfiles",\n    "tom_setup",/' <$TOM_NAME/settings.py.tmp >$TOM_NAME/settings.py &&
-    rm -r $TOM_NAME/settings.py.tmp
+	-e 's/"django.contrib.staticfiles",/"django.contrib.staticfiles",\n    "tom_setup",/' <"$TOM_NAME/settings.py.tmp" >"$TOM_NAME/settings.py" &&
+    rm -r "$TOM_NAME/settings.py.tmp"
 else
     echo "sed not found. Please manually edit the INSTALLED_APPS list in your settings.py file and add 'tom_setup' at the end."
-    echo -n "Are you ready to continue? (Y/n)? [Y]: "
-    read user_input
+    printf "Are you ready to continue? (Y/n)? [Y]: "
+    read -r user_input
 
     # Set the default value to "N" if the input is empty
     user_input="${user_input:-Y}"
@@ -180,7 +182,7 @@ pwd
 if command -v tree >/dev/null 2>&1; then
     tree -L 2 -I .venv\|__pycache__
 else
-    ls `pwd`
+    ls "$(pwd)"
 fi
 
 
