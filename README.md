@@ -7,10 +7,10 @@ The `make-tom.sh` script is all you need. Download it, make it executable (`chmo
 ```bash
   ./make-tom.sh my_tom
 ```
-This will create the directory `my_tom` in your current working directory with a virtural environment (`my_tom/env`) and TOM Toolkit (Django) project.
+This will create the directory `my_tom` in your current working directory with a virtual environment (`my_tom/.venv`) and TOM Toolkit (Django) project.
 
 The basic workflow executed by the `make-tom.sh` script is:
-1. Create a Python virtual environment and activate it.
+1. Create a Python virtual environment (`.venv`) and activate it.
 2. From PyPI, install `tomtoolkit` and its dependencies (including Django) into the virtual environment.
 3. Use the `django-admin startproject` command to create a basic Django project.
 4. Add the one-time utility, `tom_setup`, to the basic Django project's `settings.py` `INSTALLED_APPS` list and run its `tom_setup` management command.
@@ -19,8 +19,9 @@ When the `make-tom.sh` script is finished, you'll see (for example) the followin
 
 ```bash
 Here is the directory we created:
-/path/to/your/cwd//my_tom
+/path/to/your/cwd/my_tom
 .
+├── .venv
 ├── data
 ├── db.sqlite3
 ├── manage.py
@@ -39,7 +40,7 @@ Here is the directory we created:
 
 Next steps:
   1. cd to the new directory. 
-  2. activate the virtual environment with 'source ./env/bin/activate'. 
+  2. activate the virtual environment with 'source ./.venv/bin/activate'. 
   3. Start the Django development server with './manage.py runserver'. 
   4. Point a browser to the URL given by the 'runserver' management command.
 ```

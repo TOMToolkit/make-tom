@@ -88,8 +88,8 @@ cd $TOM_DIR_NAME
 #
 echo
 echo "${bold}Creating and activating the virtual environment...${normal}"
-$PYTHON_PATH -m venv env
-source env/bin/activate
+$PYTHON_PATH -m venv .venv
+source .venv/bin/activate
 pip install --upgrade pip        # so we don't get reminded again and again
 
 #
@@ -178,7 +178,7 @@ echo
 echo "${bold}Here is the directory we created:${normal}"
 pwd
 if command -v tree >/dev/null 2>&1; then
-    tree -L 2 -I env\|__pycache__
+    tree -L 2 -I .venv\|__pycache__
 else
     ls `pwd`
 fi
@@ -187,6 +187,6 @@ fi
 echo
 echo "${bold}Next steps:${normal}"
 echo "  1. cd to the new directory. "
-echo "  2. activate the virtual environment with 'source ./env/bin/activate'. "
+echo "  2. activate the virtual environment with 'source ./.venv/bin/activate'. "
 echo "  3. Start the Django development server with './manage.py runserver'. "
 echo "  4. Point a browser to the URL given by the 'runserver' management command."
