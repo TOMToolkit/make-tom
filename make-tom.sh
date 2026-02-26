@@ -6,6 +6,36 @@ set -eo pipefail
 bold=$(tput bold 2>/dev/null || true)
 normal=$(tput sgr0 2>/dev/null || true)
 
+# ---------------------------------------------------------------------------
+# Utility functions
+# ---------------------------------------------------------------------------
+
+# Ask a yes/no question. Returns 0 for yes, 1 for no.
+#   $1 = prompt text
+#   $2 = default ("y" or "n")
+ask_yes_or_no() {
+    local prompt="$1"
+    local default="$2"
+    local hint
+    if [ "$default" = "y" ]; then
+        hint="Y/n"
+    else
+        hint="y/N"
+    fi
+    printf "%s (%s): " "$prompt" "$hint"
+    read -r answer
+    answer="${answer:-$default}"
+    case "$(echo "$answer" | tr '[:upper:]' '[:lower:]')" in
+        y|yes) return 0 ;;
+        *)     return 1 ;;
+    esac
+}
+
+
+# ===========================================================================
+# Main workflow
+# ===========================================================================
+
 #
 # 1. Gather the name of the django project from the command line
 #
@@ -61,19 +91,7 @@ check_python "$(command -v python 2>/dev/null)"
 echo
 echo "Using ${bold}$PYTHON_VERSION${normal} at $PYTHON_PATH to create "
 echo "create TOM: ${bold}$TOM_NAME${normal} in directory ${bold}$TOM_DIR_NAME${normal}"
-# Ask the user if they want to continue with the default "No"
-printf "Do you want to continue (y/n)? [n]: "
-read -r user_input
-
-# Set the default value to "N" if the input is empty
-user_input="${user_input:-N}"
-# Convert the user input to uppercase
-user_input=$(echo "$user_input" | tr '[:lower:]' '[:upper:]')
-
-# Check the user's choice
-if [ "$user_input" = "Y" ]; then
-    echo "Continuing..."
-else
+if ! ask_yes_or_no "Do you want to continue?" "n"; then
     echo "Exiting."
     exit 0
 fi
@@ -147,19 +165,8 @@ if command -v sed > /dev/null 2>&1; then
 	-e 's/"django.contrib.staticfiles",/"django.contrib.staticfiles",\n    "tom_setup",/' <"$TOM_NAME/settings.py.tmp" >"$TOM_NAME/settings.py" &&
     rm -r "$TOM_NAME/settings.py.tmp"
 else
-    echo "sed not found. Please manually edit the INSTALLED_APPS list in your settings.py file and add 'tom_setup' at the end."
-    printf "Are you ready to continue? (Y/n)? [Y]: "
-    read -r user_input
-
-    # Set the default value to "N" if the input is empty
-    user_input="${user_input:-Y}"
-    # Convert the user input to uppercase
-    user_input=$(echo "$user_input" | tr '[:lower:]' '[:upper:]')
-
-    # Check the user's choice
-    if [ "$user_input" = "Y" ]; then
-        echo "Continuing..."
-    else
+    echo "sed not found. Please manually add 'tom_setup' to INSTALLED_APPS in $TOM_NAME/settings.py."
+    if ! ask_yes_or_no "Have you added it and are ready to continue?" "n"; then
         echo "Exiting."
         exit 0
     fi
