@@ -21,22 +21,33 @@ When the `make-tom.sh` script is finished, you'll see (for example) the followin
 Here is the directory we created:
 /path/to/your/cwd/my_tom
 .
-├── .venv
+├── custom_code
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── management
+│   ├── migrations
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
 ├── data
 ├── db.sqlite3
 ├── manage.py
+├── requirements.txt
+├── static
+│   └── tom_common
+├── templates
+├── tmp
 ├── my_tom
 │   ├── asgi.py
 │   ├── __init__.py
-│   ├── __pycache__
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── static
-├── templates
-└── tmp
+└── venv -> .venv
 
-6 directories, 7 files
+10 directories, 14 files
+
 
 Next steps:
   1. cd to the new directory. 
