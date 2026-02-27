@@ -58,6 +58,14 @@ Next steps:
 
 ### Tips and Trouble-shooting
 
+#### 1. I don't use `venv` and `pip` to manage virtual environments and dependencies in my Python projects. I use `poetry` or `uv`.
+
+First and foremost, _ALWAYS use a virtual environment for your Python projects. DO NOT install dependencies into your system Python installation._
+
+This script uses `pip` to install dependencies. It uses `venv` to create the virtual environment that `pip` installs those dependencies into. In practice, you'll probably use more modern tooling: If `poetry` or `uv` is your dependency manager of choice, a likely next step in your development journey is to set that up. However, that is outside the scope of this script. Our demonstration TOM ([tom-demo](https://tom-demo.lco.global/)) uses `poetry` and the tom-demo `pyproject.toml` file can be seen [here](https://github.com/LCOGT/tom-demo/blob/dev/pyproject.toml).
+
+#### 2. Generate a TOM whose name is unique on your file system
+
 Here's a way to generate a uniquely named TOM, which can be useful when you repeatedly want to evaluate or experiment with something with the intention of deleting the directory when you're done:
 ```bash
 ./make-tom.sh name_of_your_tom_`date +'%Y%h%d_%0k%M'`
