@@ -235,6 +235,9 @@ echo
 echo "${bold}Creating and activating the virtual environment...${normal}"
 "$PYTHON_PATH" -m venv .venv || print_error_and_exit "Failed to create virtual environment."
 
+# make the virtual environment visible to those not familiar with (hidden) dotfiles
+ln -s .venv venv
+
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
