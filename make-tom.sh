@@ -2,7 +2,7 @@
 
 # Minimum and maximum Python versions supported by tomtoolkit.
 # Update these when tomtoolkit's compatibility requirements change.
-MIN_PYTHON_VERSION="3.9"
+MIN_PYTHON_VERSION="3.10"
 MAX_PYTHON_VERSION="3.13"
 
 set -eo pipefail
