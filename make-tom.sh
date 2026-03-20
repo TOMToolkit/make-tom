@@ -5,6 +5,14 @@
 MIN_PYTHON_VERSION="3.10"
 MAX_PYTHON_VERSION="3.13"
 
+# prevent the user from sourcing this script because it contains
+# 'exit' commands that will close their shell if sourced.
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    echo "Warning: make-tom.sh must be executed, not sourced." >&2
+    echo "  Run: ./make-tom.sh [project_name]" >&2
+    return 1
+fi
+
 set -eo pipefail
 
 # Terminal formatting (empty strings if tput is unavailable, e.g. on dumb terminals)

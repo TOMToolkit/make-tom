@@ -9,6 +9,8 @@ The `make-tom.sh` script is all you need. Download it, make it executable (`chmo
 ```
 This will create the directory `my_tom` in your current working directory with a virtual environment (`my_tom/.venv`) and TOM Toolkit (Django) project.
 
+NOTE: Do not `source` `make-tom.sh`. First of all, it won't let you. Secondly, it contains `exit` commmands that will exit the shell you sourced it from which is not what you want. 
+
 The basic workflow executed by the `make-tom.sh` script is:
 1. Create a Python virtual environment (`.venv`) and activate it.
 2. From PyPI, install `tomtoolkit` and its dependencies (including Django) into the virtual environment.
@@ -71,3 +73,11 @@ Here's a way to generate a uniquely named TOM, which can be useful when you repe
 ./make-tom.sh name_of_your_tom_`date +'%Y%h%d_%0k%M'`
 ```
 This will create a uniquely named TOM Toolkit directory called, for example, `name_of_your_tom_2023Dec13_1751`.
+
+#### 3. Install a local branch of TOMToolkit into your TOM
+
+This is something you would do to work on a TOMToolkit issue, or develop a new feature that you might submit to us as a pull request (PR). Fantastic! Here's how:
+
+After you've run the `make-tom.sh` script, in your TOM directory: run `pip install -e /path/to/your/local/branch/of/tom_base`
+
+This will replace the PyPI-installed version of TOMToolkit in your virtual environment with your development branch. You can confirm this by looking at your TOM's index page and verifying that the TOMToolkit version is 0.0.0 and not the version installed from PyPI.
