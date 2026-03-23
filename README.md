@@ -58,26 +58,44 @@ Next steps:
   4. Point a browser to the URL given by the 'runserver' management command.
 ```
 
-### Tips and Trouble-shooting
+## Tips and Trouble-shooting
 
-#### 1. I don't use `venv` and `pip` to manage virtual environments and dependencies in my Python projects. I use `poetry` or `uv`.
+### 1. I don't use `venv` and `pip` to manage virtual environments and dependencies in my Python projects. I use `poetry` or `uv`.
 
 First and foremost, _ALWAYS use a virtual environment for your Python projects. DO NOT install dependencies into your system Python installation._
 
 This script uses `pip` to install dependencies. It uses `venv` to create the virtual environment that `pip` installs those dependencies into. In practice, you'll probably use more modern tooling: If `poetry` or `uv` is your dependency manager of choice, a likely next step in your development journey is to set that up. However, that is outside the scope of this script. Our demonstration TOM ([tom-demo](https://tom-demo.lco.global/)) uses `poetry` and the tom-demo `pyproject.toml` file can be seen [here](https://github.com/LCOGT/tom-demo/blob/dev/pyproject.toml).
 
-#### 2. Generate a TOM whose name is unique on your file system
+### 2. Generate a TOM whose name is unique on your file system
 
 Here's a way to generate a uniquely named TOM, which can be useful when you repeatedly want to evaluate or experiment with something with the intention of deleting the directory when you're done:
+
 ```bash
 ./make-tom.sh name_of_your_tom_`date +'%Y%h%d_%0k%M'`
 ```
 This will create a uniquely named TOM Toolkit directory called, for example, `name_of_your_tom_2023Dec13_1751`.
 
-#### 3. Install a local branch of TOMToolkit into your TOM
+### 3. Install a local branch of TOM Toolkit into your TOM
 
-This is something you would do to work on a TOMToolkit issue, or develop a new feature that you might submit to us as a pull request (PR). Fantastic! Here's how:
+This is something you would do to work on a TOM Toolkit issue, or develop a new feature that you might submit to us as a pull request (PR). Fantastic! Here's how, assuming:
 
-After you've run the `make-tom.sh` script, in your TOM directory: run `pip install -e /path/to/your/local/branch/of/tom_base`
+  1. You've run the `make-tom.sh` script.
+  2. Your current working directory is your TOM directory (i.e. the one that `make-tom.sh` created for you).
+  3. Your virtual environment is activated.
 
-This will replace the PyPI-installed version of TOMToolkit in your virtual environment with your development branch. You can confirm this by looking at your TOM's index page and verifying that the TOMToolkit version is 0.0.0 and not the version installed from PyPI.
+Here's are some ways to see what you're about to change (the "before" part):
+
+  1. Look at your TOM's index page and note the version of TOM Toolkit displayed at the bottom; and/or,
+  2. Run `pip freeze | grep tomtoolkit` to see the version that `make-tom.sh` installed from PyPI.
+
+Now, to install your local branch of TOM Toolkit, run
+
+```bash
+pip install -e /path/to/your/local/branch/of/tom_base
+```
+This will replace the PyPI-installed version of TOM Toolkit in your virtual environment with your development branch.
+
+Here are some ways to confirm the change you just made (the "after" part):
+
+  1. Look at your TOM's index page and verify that the TOM Toolkit version is 0.0.0 and not the version installed from PyPI.
+  2. Run `pip freeze | grep tom_base` and see the path to your local branch.
