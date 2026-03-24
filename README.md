@@ -77,13 +77,13 @@ This will create a uniquely named TOM Toolkit directory called, for example, `na
 
 ### 3. Install a local branch of TOM Toolkit into your TOM
 
-This is something you would do to work on a TOM Toolkit issue, or develop a new feature that you might submit to us as a pull request (PR). Fantastic! Here's how, assuming:
+This is something you would do to work on a TOM Toolkit issue, or develop a new feature that you might submit to us as a pull request (PR). Fantastic! Here's how, (assuming these prerequisites):
 
   1. You've run the `make-tom.sh` script.
   2. Your current working directory is your TOM directory (i.e. the one that `make-tom.sh` created for you).
   3. Your virtual environment is activated.
 
-Here's are some ways to see what you're about to change (the "before" part):
+Here are some ways to see what you're about to change (the "before" part):
 
   1. Look at your TOM's index page and note the version of TOM Toolkit displayed at the bottom; and/or,
   2. Run `pip freeze | grep tomtoolkit` to see the version that `make-tom.sh` installed from PyPI.
