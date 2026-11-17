@@ -2,8 +2,8 @@
 
 # Minimum and maximum Python versions supported by tomtoolkit.
 # Update these when tomtoolkit's compatibility requirements change.
-MIN_PYTHON_VERSION="3.10"
-MAX_PYTHON_VERSION="3.13"
+MIN_PYTHON_VERSION="3.11"
+MAX_PYTHON_VERSION="3.14"
 
 # prevent the user from sourcing this script because it contains
 # 'exit' commands that will close their shell if sourced.
